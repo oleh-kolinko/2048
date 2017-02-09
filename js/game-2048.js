@@ -51,3 +51,46 @@ Game2048.prototype._renderBoard = function(){
     console.log(row);
   });
 };
+
+Game2048.prototype.moveLeft = function (){
+  var updatedBoard = [];
+  this.board.forEach(function (row){
+    //1.remove empties from row
+    var newRow = row.filter(function (cell){
+      return cell !== null;//if true save cell to new array
+    });
+    //2.merge tiles that are together and the same number
+    for(var i = 0; i < newRow.length - 1  ; i++){
+      if(newRow[i] === newRow[i+1]){
+        newRow[i] *= 2;
+        newRow.splice(i+1,1);
+      }
+    }
+    //3.push() nulls until row has length 4 again
+    for(i = newRow.length ; i < 4; i++){
+      newRow.push(null);
+    }
+    updatedBoard.push(newRow);
+  });
+  this.board = updatedBoard;
+};
+
+// //For test
+// function left(row){
+//   //1.remove empties from row
+//   var newRow = row.filter(function (cell){
+//     return cell !== null;//if true save cell to new array
+//   });
+//   //2.merge tiles that are together and the same number
+//   for(var i = 0; i < newRow.length - 1  ; i++){
+//     if(newRow[i] === newRow[i+1]){
+//       newRow[i] *= 2;
+//       newRow.splice(i+1,1);
+//     }
+//   }
+//   //3.push() nulls until row has length 4 again
+//   for(i = newRow.length ; i < 4; i++){
+//     newRow.push(null);
+//   }
+//   return newRow;
+// }
