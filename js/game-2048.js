@@ -75,22 +75,47 @@ Game2048.prototype.moveLeft = function (){
   this.board = updatedBoard;
 };
 
-// //For test
-// function left(row){
-//   //1.remove empties from row
-//   var newRow = row.filter(function (cell){
-//     return cell !== null;//if true save cell to new array
-//   });
-//   //2.merge tiles that are together and the same number
-//   for(var i = 0; i < newRow.length - 1  ; i++){
-//     if(newRow[i] === newRow[i+1]){
-//       newRow[i] *= 2;
-//       newRow.splice(i+1,1);
-//     }
-//   }
-//   //3.push() nulls until row has length 4 again
-//   for(i = newRow.length ; i < 4; i++){
-//     newRow.push(null);
-//   }
-//   return newRow;
-// }
+Game2048.prototype.moveRight = function (){
+  var updatedBoard = [];
+  this.board.forEach(function (row){
+    //1.remove empties from row
+    var newRow = row.filter(function (cell){
+      return cell !== null;//if true save cell to new array
+    });
+    //2.merge tiles that are together and the same number
+    newRow = newRow.reverse();
+    for(var i = 0; i < newRow.length - 1  ; i++){
+      if(newRow[i] === newRow[i+1]){
+        newRow[i] *= 2;
+        newRow.splice(i+1,1);
+      }
+    }
+    //3.push() nulls until row has length 4 again
+    for(i = newRow.length ; i < 4; i++){
+      newRow.push(null);
+    }
+    newRow = newRow.reverse();
+    updatedBoard.push(newRow);
+  });
+  this.board = updatedBoard;
+};
+
+Game2048.prototype._transposeMatrix = function () {
+  for (var row = 0; row < this.board.length; row++) {
+    for (var column = row+1; column < this.board.length; column++) {
+      var temp = this.board[row][column];
+      this.board[row][column] = this.board[column][row];
+      this.board[column][row] = temp;
+    }
+  }
+};
+Game2048.prototype.moveUp = function () {
+  this._transposeMatrix();
+  this.moveLeft();
+  this._transposeMatrix();
+};
+Game2048.prototype.moveDown = function () {
+  this._transposeMatrix();
+  this.moveRight();
+  this._transposeMatrix();
+};
