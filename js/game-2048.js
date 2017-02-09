@@ -8,6 +8,7 @@ function Game2048(){
   ];
   this.hasWon = false;
   this.hasLost = false;
+  this.boardHasChanged = false;
 
   this._generateTile();
   this._generateTile();
@@ -50,10 +51,12 @@ Game2048.prototype._renderBoard = function(){
   this.board.forEach(function(row){
     console.log(row);
   });
+  console.debug("Current score = " + this.score);
 };
 
 Game2048.prototype.moveLeft = function (){
   var updatedBoard = [];
+  var that = this;
   this.board.forEach(function (row){
     //1.remove empties from row
     var newRow = row.filter(function (cell){
@@ -64,11 +67,15 @@ Game2048.prototype.moveLeft = function (){
       if(newRow[i] === newRow[i+1]){
         newRow[i] *= 2;
         newRow.splice(i+1,1);
+        that._updateScore(newRow[i]);
       }
     }
     //3.push() nulls until row has length 4 again
     for(i = newRow.length ; i < 4; i++){
       newRow.push(null);
+    }
+    if(newRow !== row){
+      that.boardHasChanged = true;
     }
     updatedBoard.push(newRow);
   });
@@ -77,6 +84,7 @@ Game2048.prototype.moveLeft = function (){
 
 Game2048.prototype.moveRight = function (){
   var updatedBoard = [];
+  var that = this;
   this.board.forEach(function (row){
     //1.remove empties from row
     var newRow = row.filter(function (cell){
@@ -88,6 +96,7 @@ Game2048.prototype.moveRight = function (){
       if(newRow[i] === newRow[i+1]){
         newRow[i] *= 2;
         newRow.splice(i+1,1);
+        that._updateScore(newRow[i]);
       }
     }
     //3.push() nulls until row has length 4 again
@@ -95,6 +104,9 @@ Game2048.prototype.moveRight = function (){
       newRow.push(null);
     }
     newRow = newRow.reverse();
+    if(newRow !== row){
+      that.boardHasChanged = true;
+    }
     updatedBoard.push(newRow);
   });
   this.board = updatedBoard;
@@ -118,4 +130,71 @@ Game2048.prototype.moveDown = function () {
   this._transposeMatrix();
   this.moveRight();
   this._transposeMatrix();
+};
+
+Game2048.prototype.move = function(direction) {
+  if(this.hasWon || this.hasLost){
+    return;
+  }
+  switch (direction) {
+    case 'up':
+      this.moveUp();
+      break;
+    case 'down':
+      this.moveDown();
+      break;
+    case 'left':
+      this.moveLeft();
+      break;
+    case 'right':
+      this.moveRight();
+      break;
+    default: console.error('wrong direction');
+    }
+
+  if(this.boardHasChanged){
+    this._generateTile();
+    this.boardHasChanged = false;
+  }
+};
+
+Game2048.prototype._updateScore = function(points){
+  this.score += points;
+
+  if(points === 2048){
+    this.hasWond = true;
+  }
+};
+
+Game2048.prototype._isGameLost = function () {
+  if (this._getAvailablePosition())
+    return;
+
+  var that   = this;
+  var isLost = true;
+
+  this.board.forEach(function (row, rowIndex) {
+    row.forEach(function (cell, cellIndex) {
+      var current = that.board[rowIndex][cellIndex];
+      var top, bottom, left, right;
+
+      if (that.board[rowIndex][cellIndex - 1]) {
+        left  = that.board[rowIndex][cellIndex - 1];
+      }
+      if (that.board[rowIndex][cellIndex + 1]) {
+        right = that.board[rowIndex][cellIndex + 1];
+      }
+      if (that.board[rowIndex - 1]) {
+        top    = that.board[rowIndex - 1][cellIndex];
+      }
+      if (that.board[rowIndex + 1]) {
+        bottom = that.board[rowIndex + 1][cellIndex];
+      }
+
+      if (current === top || current === bottom || current === left || current === right)
+        isLost = false;
+    });
+  });
+
+  this.lost = isLost;
 };
