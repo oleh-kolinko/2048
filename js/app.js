@@ -2,11 +2,41 @@
 var myGame;
 $(document).ready(function(){
   myGame = new Game2048();
-
+  loadSounds();
+  //2. Load iniatial board state onto page
   renderTiles();
+  //3. Handle keyboard events
+  $(document).keydown(function(e){
+    // e.preventDefault();
+    switch (e.keyCode){
+      case 37:
+      myGame.move('left');
+      ion.sound.play('snap');break;
+      case 38:
+      myGame.move('up'); break;
+      case 39:
+      myGame.move('right'); break;
+      case 40:
+      myGame.move('down'); break;
+    }
+
+    renderTiles();
+    $('#score-display').html(myGame.score);
+    checkIfDone();
+  });
 });
-//2. Load iniatial board state onto page
+function checkIfDone(){
+  if(myGame.hasWon){
+    var winnerHtml = '<h1>Winner</h1>';
+    $('body').append(winnerHtml);
+  }else if(myGame.hasLost){
+    console.log('lost');
+    var loserHtml = '<h1>Loser</h1>';
+    $('body').append(loserHtml);
+  }
+}
 function renderTiles(){
+  $('#tile-container').empty();
   myGame.board.forEach(function (row,rowIndex){
     row.forEach(function (cell, colIndex){
       if(cell === null){
@@ -19,7 +49,11 @@ function renderTiles(){
     });
   });
 }
-//3. Handle keyboard events
-//4. Move board in object based on keypress
-//5. Updating the screen based on new board state
-//6. win or lose (maybe)
+function loadSounds(){
+  ion.sound({
+    sounds:[{ name: 'snap'},{ name: 'tap'}, {name:'beer_can_opening'}],
+    path: 'lib/ion.sound-3.0.7/sounds/',
+    preload: true,
+    volume: 1.0
+  });
+}

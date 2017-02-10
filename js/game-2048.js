@@ -136,6 +136,7 @@ Game2048.prototype.move = function(direction) {
   if(this.hasWon || this.hasLost){
     return;
   }
+  ion.sound.play('snap');
   switch (direction) {
     case 'up':
       this.moveUp();
@@ -151,7 +152,7 @@ Game2048.prototype.move = function(direction) {
       break;
     default: console.error('wrong direction');
     }
-
+  this._isGameLost();
   if(this.boardHasChanged){
     this._generateTile();
     this.boardHasChanged = false;
@@ -160,7 +161,7 @@ Game2048.prototype.move = function(direction) {
 
 Game2048.prototype._updateScore = function(points){
   this.score += points;
-
+  ion.sound.play('tap');
   if(points === 2048){
     this.hasWond = true;
   }
@@ -196,5 +197,5 @@ Game2048.prototype._isGameLost = function () {
     });
   });
 
-  this.lost = isLost;
+  this.hasLost = isLost;
 };
